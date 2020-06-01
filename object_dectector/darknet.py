@@ -6,6 +6,8 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 import numpy as np
 
+from util import *
+
 def parse_cfg(cfgFile):
     file = open(cfgFile, 'r')
     lines = file.read().split('\n')
@@ -184,3 +186,23 @@ def forward(self, x, CUDA):
         elif module_type == "shortcut":
             from_ = int(module["from"])
             x = outputs[i - 1] + outputs[i + from_]
+
+        elif module_type == "yolo":
+            anchors = self.module_list[i][0].anchors
+            inp_dim = int(self.net_info["height"])
+
+            num_classes = int(module["classes"])
+
+            x = x.data
+            x = predict_transform(x, inp_dim, anchors, num_classes, CUDA)
+
+            if not write:
+                detections = x
+                write = 1
+            
+            else:
+                detections = torch.cat((detections, x), 1)
+            
+        outputs[i] = x
+
+    return detections
