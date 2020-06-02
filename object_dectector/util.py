@@ -26,7 +26,7 @@ def predict_transform(prediction, inp_dim, anchors, num_classes, CUDA = True):
     prediction[:,:,4] = torch.sigmoid(prediction[:,:,4])
 
     # Add the center offsets
-    grid = np.arrange(grid_size)
+    grid = np.arange(grid_size)
     a, b = np.meshgrid(grid, grid)
 
     x_offset = torch.FloatTensor(a).view(-1, 1)
@@ -38,7 +38,7 @@ def predict_transform(prediction, inp_dim, anchors, num_classes, CUDA = True):
 
     x_y_offset = torch.cat((x_offset, y_offset), 1).repeat(1, num_anchors).view(-1, 2).unsqueeze(0)
 
-    prediction[:, :, 2] += x_y_offset
+    prediction[:, :, :2] += x_y_offset
 
     anchors = torch.FloatTensor(anchors)
 
